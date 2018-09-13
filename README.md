@@ -1,5 +1,7 @@
 # Siren pipeline
 
+## Overview:
+
 Siren can perform three functions:
 - Identify elution peak scans, masses, and charges for peptide ions in MS1 data.
 - Extract elution profiles for these peptide ions (abundance across multiple scans)
@@ -25,6 +27,11 @@ The outputs are:
 ## System:
 
 - Siren was designed and tested on Linux systems. It should probably work on a mac.
+
+python ./bin/python/siren.txt FILENAME.ms1
+
+python ./bin/python/siren.txt MS1FILENAME.ms1 MZXMLFILENAME.mzXML
+
 
 
 
