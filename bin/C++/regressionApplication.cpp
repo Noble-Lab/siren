@@ -234,18 +234,14 @@ int main( int argc, char *argv[] ){
 		}
 
 		if( strcmp( algorithm, "both" ) == 0 ){	
-			printf("\nMaking BGD\n");
-			lassoSGD * rs = static_cast< lassoSGD * >(r);
-			lassoBGD * rb = new lassoBGD( rs );
-
 			if( ! score_only ){
-				rb->learn();
-				rb->write_B();
+				lassoSGD * rs = static_cast< lassoSGD * >(r);
+				rs->learn_batch();
+				rs->write_B("bB.txt");
 			}
 			else{
 				r->write_B();
 			}
-			r = rb;
 		}
 
 		// Scoring
@@ -275,6 +271,7 @@ int main( int argc, char *argv[] ){
 				delete [] penalties;		
 			}
 			else{
+				/*
 				double * penalties;
 				penalties  = compute_unweighted_penalties(r->B.m, N, T);
 				double * exW  = zeros(N,T);
@@ -289,7 +286,7 @@ int main( int argc, char *argv[] ){
 				//double ** scores = corrscore_W_variable( r->Y.m, r->X.m, r->B.m, W, int M, int T, int N, int win, char* wintype, int K, int ms1size, int ms2size ){
 				//write_scores( scores, 5, N, filename );
 				//deldoublestarstar( scores, 5);
-				delete [] penalties;		
+				delete [] penalties;*/		
 			}
 		}
 	}

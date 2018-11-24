@@ -44,12 +44,15 @@ public:
 	double gradient;
 	int * peaksperpeptide;
 	double get_resid( int m, int t );
-	virtual	void update(int m, int t ); 
+	virtual	void update(int m, int t ); // This recomputes residuals before doing the update
+	void update_gradients( int m, int t ); // Same but doesn't first compute the residuals. Residual computation is done in one batch, and all of the parameters should be updated without re-computing the residual each time. 
 	int* randsequence; // This is for sampling Y without replacement
 	virtual double epoch();
+	double batch();
 	void update_epsilon();
 	virtual void learn();
 	virtual void set_stepsize( double ss );
+	void learn_batch();
 	void learn_track();
 	bool eprior;
 
@@ -70,6 +73,7 @@ public:
 	double get_resids_fast( );
 	double * resids;
 	double * gradients;
+	int batchnum;
 
 	// Variables for the function update( int m, int t, double epsilon );
 	double residU;
@@ -327,6 +331,28 @@ double lassoSGD::get_resid( int m, int t ){
 };
 
 
+void lassoSGD::update_gradients(int m, int t ){ // update the gradients of all of the parameters that are affected by the data point at m, t
+	max_deltaU = 0;	
+	nzix = m*maxnz;
+	nzend = nzix+maxnz;	
+	n=nzx[nzix];
+	residU = resids[m*T+t]; 
+	avg_resid += residU*residU;
+	//nzx is a M*maxnz matrix that, which each row m contains
+	//the peptides that have a theoretical peak at m/z bin m
+	while( n != -1 ){
+		Bix = t*N+n;
+		if( true ){	
+			gradient = 2*Xcsr[nzix]*residU;
+			gradients[Bix] += gradient;
+		}
+		nzix++;
+		if( nzix == nzend ){ break; }
+		n=nzx[nzix];
+	}
+};
+
+
 
 void lassoSGD::update(int m, int t ){ // Returns the value of greatest update
 	residU = get_resid( m, t );
@@ -424,6 +450,44 @@ void lassoSGD::get_resids(){
 	}
 };
 
+double lassoSGD::batch(){
+        double max_delta=0;
+	avg_resid=0;
+        double delta;
+        int m;
+        int t;
+        clock_t begin = clock();
+        begin = clock();
+	update_epsilon();
+
+	// Get the residuals
+	get_resids_fast();
+	//Update all of the parameter gradients based on the residuals
+	for( int i=0; i<NT; i++ ){ gradients[i] = 0; } // First zero them out
+        for( int m=0; m<M; m++ ){
+		for( int t=0; t<T; t++ ){
+			update_gradients( m, t );
+		}
+        }
+	// Now update all of the parameters based on the gradients
+	//
+	//
+	//
+	for( int Bix=0; Bix<NT; Bix++ ){
+		deltaU = min( (gradients[Bix] + lambda)*epsilon, B[Bix] );
+		B[Bix] = B[Bix] - deltaU;
+		if( deltaU < 0 ){ deltaU = -1*deltaU; }
+		if( deltaU > max_deltaU ){
+			max_deltaU = deltaU;
+		}
+	}
+	avg_resid /= MT;
+        printf("\n in %f seconds. Max delta: %f, nnz in B: %i\n",double(clock()-begin)/CLOCKS_PER_SEC,max_delta,B.nnz());
+        printf("total_resid: %f\n",avg_resid*MT);
+        batchnum++;
+        return(max_delta);
+};
+
 double lassoSGD::epoch(){
         double max_delta=0;
 	avg_resid=0;
@@ -458,6 +522,60 @@ void lassoSGD::update_epsilon(){
 	printf("stepsize = %f, epochnum: %i, epsilon: %f\n", stepsize, epochnum, epsilon);
 	epsilons.push_back(epsilon);
 };
+
+void lassoSGD::learn_batch(){
+	printf("Outdir: %s\n",outdir);
+	/*
+	if( sparsexy ){
+		printf("Magnitude of Y: %f\n", Yrm->norm2());
+	}
+	else{
+		printf("Magnitude of Y: %f\n", Y.norm2());
+	}*/
+	printf("Magnitude of Y: %f\n", Y.norm2());
+	itnum = 1;
+	epsilon = 1;
+	double max_delta;
+	clock_t begin;
+	int nnz;
+	double ratio;
+	double lasso_objective;
+
+	gradients = zeros( N, T );
+	
+	for( int i=0; i<maxit; i++ ){
+		max_delta = batch();
+	        printf("Peak RSS: %i mb\n", getPeakRSS()/1000000 );
+		if( i < 2 ){
+			newsse = ls();		
+			lasso_objective = total_objective();
+			ssediff = oldsse - newsse;
+			printf("SSE at %i batches: %f\n", i+1, newsse );
+			printf("norm1 at %i batches: %f\n", i+1, norm1(B.m, B.nrow, B.ncol) );
+			printf("objective at %i batches: %f\n", i+1, lasso_objective );
+		}
+		else if( i % (pollperiod) == 0 ){
+			oldsse = newsse;
+			newsse = ls();
+			lasso_objective = total_objective();
+			printf("SSE at %i batches: %f\n", i+1, newsse );
+			printf("norm1 at %i batches: %f\n", i+1, norm1(B.m, B.nrow, B.ncol) );
+			printf("objective at %i batches: %f\n", i+1, lasso_objective );
+			ratio = (oldsse-newsse)/ssediff;
+//			printf(" ratio: %f\n", ratio );
+		}
+		/*
+		if(  itnum % 200 == 0 ){
+		//if( true ){
+			sprintf(filename, "%s/%i_bgd_B.txt", outdir, itnum );
+			write_csr_matrix( B.m, N, T, filename );
+		}*/
+	}
+	write_B("newbatchB.txt");
+	printf("Num epochs: %i\n", epochnum );	
+	delete [] gradients;
+
+};	
 
 void lassoSGD::learn(){
 	printf("Outdir: %s\n",outdir);
