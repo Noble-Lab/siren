@@ -9,9 +9,8 @@ if len(sys.argv) == 4:
 	alignmentfile = sys.argv[2] # File containing the joint alignment
 	bfiledir = sys.argv[3] # Directory containing all of the learned Bs. The B file extracted is the /bB.txt file
 else:
-	d = '/net/noble/vol3/user/alexhu/proj/Tsou2016/data/2017-07-05/ms1/B_D140314_SGSDSsample1_R02_MHRM_T0_ms1_sparsebinned_singlescans_tannotated/'
-	alignmentfile = '/net/noble/vol3/user/alexhu/proj/Tsou2016/data/2017-07-05/ms1/B_D140314_SGSDSsample1_R02_MHRM_T0_ms1_sparsebinned_singlescans_tannotated/joint_annfile_minlen4.txt' 
-	bfiledir = '/net/noble/vol3/user/alexhu/proj/Tsou2016/data/2017-07-05/ms1/B_D140314_SGSDSsample1_R02_MHRM_T0_ms1_sparsebinned_singlescans_paths/'
+
+	sys.stdout.err('Need three arguments: 1. Directory containing annotation files, 2. Alignment file, 3. Directory containing learned abudnances per spectrum.')
 
 annfile = d + 'INITIALT_annfile.txt'
 	

@@ -1,14 +1,8 @@
 import os
 import sys
 
-execfile('/net/noble/vol3/user/alexhu/proj/DIARegression/bin/C++/2015-03-05/read_rowmajor_matrix.py')
-execfile('/net/noble/vol3/user/alexhu/proj/NavarroBenchmark/bin/2017-03-23/peakclusterforbinning.py')
-#annotationfiles = sys.argv[1:]
-
-# The code assumes these are all contiguous
-# And already sorted by time.
-# If this assumption is false, then the output is wrong
-# Also, the annotations within each file are sorted in increasing order by m/z and decreasing order by charge.
+execfile('read_rowmajor_matrix.py')
+execfile('peakclusterforbinning.py')
 def sort_dict_charge_minmz( d ):
 	order = range( len(d['charge']) )	
 	order.sort( key = lambda i: (d['t'][i],d['charge'][i],d['min m/z'][i]) )
@@ -44,7 +38,6 @@ def print_row( d, r, keys = [] ):
 		sys.stdout.write( '\t'+str(d[k][r]) )
 	sys.stdout.write('\n')
 
-#d = '/net/noble/vol3/user/alexhu/proj/Tsou2016/data/2017-07-05/ms1/B_D140314_SGSDSsample1_R02_MHRM_T0_ms1_sparsebinned_singlescans/'
 d = sys.argv[1]
 
 massHMono = 1.0078246 
