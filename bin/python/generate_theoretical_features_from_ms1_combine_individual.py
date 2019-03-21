@@ -1,7 +1,6 @@
-execfile('/net/noble/vol3/user/alexhu/proj/DIARegression/bin/2014-11-24/diaregressor.py')
-execfile('/net/noble/vol3/user/alexhu/proj/DIARegression/bin/C++/2015-03-05/read_rowmajor_matrix.py')
-execfile('/net/noble/vol3/user/alexhu/proj/NavarroBenchmark/bin/2017-03-23/peakclusterforbinning.py')
-execfile('/net/noble/vol3/user/alexhu/proj/NavarroBenchmark/bin/2017-03-23/make_averagine_models.py')
+execfile('read_rowmajor_matrix.py')
+execfile('peakclusterforbinning.py')
+execfile('make_averagine_models.py')
 
 def get_ix(n):
 	return -1*n-1
@@ -106,6 +105,7 @@ class output_vector:
 
 ms1filename = sys.argv[1]
 
+
 # Each scan is a tuple (retention time, [ list of tuples (mz,intensity) ] )
 # Read in the ms1 file into a list of peaks
 if True:
@@ -165,7 +165,7 @@ t = 0
 
 toprint = False
 while t < len(justpeaks):
-#while t == 264:
+
 	numfeats = 0
 	
 	xs = []
@@ -299,14 +299,4 @@ while t < len(justpeaks):
 		t += 1
 	ov.finish()		
 		
-# Make Decoys
-xfiles = [ xf for xf in os.listdir(outdir) if '_x.txt' in xf ]
-for xf in xfiles:
-	xf = outdir + xf
-	xfd = xf.replace('_x.txt','_xdecoy.txt') 
-		
-
-
-
-
 

@@ -2,7 +2,7 @@ import os
 import sys
 from scipy import sparse as sp
 
-execfile('/net/noble/vol3/user/alexhu/proj/DIARegression/bin/C++/2015-03-05/read_rowmajor_matrix.py')
+execfile('read_rowmajor_matrix.py')
 
 if len(sys.argv) == 4:
 	d = sys.argv[1] # Directory containing the annotation files

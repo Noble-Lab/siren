@@ -78,9 +78,10 @@ while tindex < len(ts):
 	total += len(tanns[t]['charge'])
 	tindex += 1
 
-	if tindex % 20 == 0:
+	if tindex % 50 == 0:
 		print tindex
-		print 'numfinished:', numfinished
+                print 'Num features evaluated:', numfinished
+                print 'Features that do not persist over ' + str(minlen) + ' scans'
 		print str(unaligned)+'/'+str(total) + ',' + str( float(unaligned)/total )
 
 	# If we need to read more annotation files, let's do it!
@@ -183,18 +184,5 @@ if True:
 			numfinished += 1
 
 fout.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

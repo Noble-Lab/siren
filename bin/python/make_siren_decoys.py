@@ -11,12 +11,14 @@ import scipy.sparse as sp
 #fmatfile = '/net/noble/vol3/user/alexhu/proj/Tsou2016/data/2017-07-05/ms1/B_D140314_SGSDSsample1_R01_MHRM_T0_ms1_sparsebinned_singlescans_withdecoys/0_x.txt' # the fmatfile contains both the original and the decoys, where decoys are just appended
 
 xmatdir = sys.argv[1]
+if xmatdir[-1] != '/':
+    xmatdir = xmatdir + '/'
 
 for matfile in os.listdir(xmatdir):
 	if not '_x.txt' in matfile:
 		continue
+        matfile = xmatdir + matfile
 	fmatfile = matfile.replace('_x.txt','_xdecoy.txt')
-
 
 	fin = open( matfile,'r' )
 	dim = fin.readline()
