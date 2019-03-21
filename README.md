@@ -8,16 +8,15 @@ Siren can perform three functions:
 - Provide input for a modified version of DIA-Umpire (also included) to create pseudospectra
    for peptide ions from MS2 data accompanying the MS1 data.  
 
-
 The inputs are:
 - A .ms1 file (required), converted using msconvert.
 - An mzXML (optional) associated with the .ms1 file. This can be used by modified DIA-Umpire in conjunction with Siren's extracted elution profile.
 
-The outputs are:
-1. Precursor ion annotations: a tab-delimited text file containing the mass, charge, and peak scan for peptide ions annotated by Siren
+The outputs will appear in the same directory as the .ms1 file (or subdirectories created by Siren) and are:
+1. Precursor ion annotations: tab-delimited text files containing the mass, charge, and peak scan for peptide ions annotated by Siren. The steps of the Siren pipeline will create multiple versions of this file with different pieces of information. 
 2. Elution profiles in a row-major matrix: 
-	- a text file containing a row-major sparse matrix containing elution profiles for each peptide ion contained in the preceding text file.
-3. a text file containing the same elution profiles formatted for use by the modified form of DIA-Umpire
+	- a text file containing a row-major sparse matrix containing elution profiles for each peptide ion contained in the preceding text files.
+3. A text file containing the same elution profiles formatted for use by the modified form of DIA-Umpire, with a coefficient assigned to each elution peak that denotes its position in the L1 regularization path used to control FDR. 
 4. Pseudospectra
 
 
@@ -25,7 +24,7 @@ The outputs are:
 
 ## System:
 
-- Siren was designed and tested on Linux systems. It should probably work on a mac. The Siren pipeline is uses [ython and C++. The modified DIA-Umpire software is in a java .jar file.
+- Siren was designed and tested on Linux systems. It should probably work on a mac. The Siren pipeline is uses python and C++. The modified DIA-Umpire software is in a java .jar file.
 
 ## Dependencies:
 
@@ -34,10 +33,20 @@ Numpy 1.13.3 or later
 Scipy 1.0.0rc1 or later
 Scikit-learn 0.19.0 or later
 
-To get outputs 1 and 2, run the following command:
-python ./bin/python/siren.py FILENAME.ms1
+## Installation
 
-To get outputs 1, 2, 3, and 4, run the following command:
-python ./bin/python/siren.py MS1FILENAME.ms1 MZXMLFILENAME.mzXML
+Siren relies on C++ programs for the computation of theoretical isotope distributions and 
+a subset of the linear modeling. Please compile these programs by doing the following:
+
+1. In bin/C++/Mercury8, type "make"
+2. In bin/C++, type "g++ regressionApplication.cpp -o ratest_batch"
+
+## Directions
+
+To get outputs 1 and 2, run the following command within the directory ./bin/python/:
+python siren.py FILENAME.ms1
+
+To get outputs 1, 2, 3, and 4, run the following command within the directory ./bin/python/:
+python siren.py MS1FILENAME.ms1 MZXMLFILENAME.mzXML
 
 
