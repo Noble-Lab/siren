@@ -571,7 +571,7 @@ void lassoSGD::learn_batch(){
 			write_csr_matrix( B.m, N, T, filename );
 		}*/
 	}
-	write_B("newbatchB.txt");
+	//write_B("newbatchB.txt");
 	printf("Num epochs: %i\n", epochnum );	
 	delete [] gradients;
 
