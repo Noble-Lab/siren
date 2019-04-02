@@ -35,9 +35,10 @@ y1file = sys.argv[1]
 x1file = sys.argv[2]
 outdir = sys.argv[3] 
 
+
 if True:
 
-	print 'Learning path for scan ' + str(scannum)
+	print 'Learning path for scan ' + str(y1file)
 	y = read_rowmajor_matrix( y1file )
 	(x,binbounds) = read_rowmajor_matrix_flexbins( x1file )
 	#b = read_rowmajor_matrix( bfile )

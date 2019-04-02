@@ -22,7 +22,7 @@ os.system('python regression_justms1_sparse_job_sgd.py ' + ms1dir + ' ' + bdir )
 
 sys.stdout.write('Combining solutions into elution profiles')
 alignmentfile = ms1dir + 'joint_annfile_minlen4.txt'
-os.system('python combine_ms1_matrices_from_alignment_individual.py' + ms1dir + ' ' + alignmentfile + ' ' + bdir)
+os.system('python combine_ms1_matrices_from_alignment_individual.py ' + ms1dir + ' ' + alignmentfile + ' ' + bdir)
 
 sys.stdout.write('Finding elution peaks')
 bfile = bdir+'combined_B_sp0.txt'
