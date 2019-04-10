@@ -9,7 +9,7 @@ afile = sys.argv[2]
 ms1file = sys.argv[3]
 snumfile = ms1file.replace('.ms1','_scannums.txt')
 # Just get the S lines to get the scan numbers for the ms1 file
-os.system( 'grep ^S ' + ms1file ' > ' + snumfile )
+os.system( 'grep ^S ' + ms1file + ' > ' + snumfile )
 
 scannums = []
 fin = open(snumfile)
