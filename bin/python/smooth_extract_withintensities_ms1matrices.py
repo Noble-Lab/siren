@@ -1,10 +1,14 @@
 import os
 import sys
 import scipy.signal
+import math
 execfile('read_rowmajor_matrix.py')
 
+#bfile = '/Users/ahu/Projects/SirenHome/data/15b_peptide_abundances/combined_B_sp0.txt' 
+#afile = '/Users/ahu/Projects/SirenHome/data/15b_ms1_sparsebinned_singlescans_tannotated/joint_annfile_minlen4.txt'
+
 bfile = sys.argv[1]
-minlen = int(sys.argv[2])
+minlen = int(sys.argv[2]) 
 afile = sys.argv[3]
 
 print bfile
@@ -41,35 +45,38 @@ for p in xrange(P):
 	if maxt-mint < minlen:
 		continue
 	lens[p] = maxt-mint 
-
+        sub = np.asarray(prof[mint:maxt])[:,0]
+    
+        # Pad the profile with 0s so it can be transformed with the
+        # Savitzgy golay filter with 7 points with a 4th order polynomial
+        padlen = 0
+        newmint = mint
 	if lens[p] < clen:
 		diff = clen-lens[p]
-		padlen = ceil( float(diff)/2 )
-		mint = mint-padlen
-		maxt = maxt+padlen
-		lens[p] = maxt-mint
-	mint = int(mint)
-	maxt = int(maxt)
-	sub = np.asarray(prof)[mint:maxt,0]
-
-	smoothed = scipy.signal.savgol_filter(sub,7,3)
+                padlen = int(math.ceil(float(diff)/2))
+		pad = np.zeros( padlen )
+                sub = np.concatenate( (pad,sub,pad) )
+                newmint = mint-padlen
+                 
+	smoothed = scipy.signal.savgol_filter(sub,7,4)
 	smoothed[ smoothed < 0 ] = 0
 
 	smoothedout.write( '>\t' + str(p) + '\n')
 	for t in xrange(smoothed.shape[0]):
-		smoothedout.write( str(t+mint) + '\t' + str(smoothed[t]) + '\n' )
-
-	if t + mint >= 2200: #Don't smooth after 2200 scans
-		continue
+                if t + newmint < 0:
+                    continue
+		smoothedout.write( str(t+newmint) + '\t' + str(smoothed[t]) + '\n' )
 	
 	smoothedlen = smoothed.shape[0]
 	# Find Maxima
-	if smoothed[0] >= smoothed[1] and smoothed[0] != 0:
-		maxima[p].append( (mint,smoothed[0]) )
+	if newmint >= 0 and smoothed[0] >= smoothed[1] and smoothed[0] != 0:
+		maxima[p].append( (newmint,smoothed[0]) )
 
 	for t in xrange(1,smoothedlen-1):
+                if t + newmint < 0:
+                    continue
 		if smoothed[t] > smoothed[t-1] and smoothed[t] > smoothed[t+1]:
-			maxima[p].append( (t+mint,smoothed[t]) )
+			maxima[p].append( (t+newmint,smoothed[t]) )
 	if smoothed[-1] >= smoothed[-2] and smoothed[-1]>0:
 		maxima[p].append( (maxt-1,smoothed[-1]) )
 
@@ -106,10 +113,12 @@ if True:
 			for (snum,i) in maxes[1:end]:
 				fout.write(','+str(snum) )
 				numpeaks += 1
-			# Output peak intensities
-			fout.write( '\t'+str(maxes[0][1]) )
+			# Output peak intensities and their peak times
+                        fout.write( '\t'+str(maxes[0][1])+':'+str(maxes[0][0]) )
 			for (snum,i) in maxes[1:end]:
-				fout.write(','+str(i) )
+                            fout.write(','+str(i)+':'+str(snum) )
+                else:
+                    fout.write('\t')
 
 		# Now output the decoys
 		fout.write('\t')
@@ -124,9 +133,11 @@ if True:
 			for (snum,i) in maxes[1:end]:
 				fout.write(','+str(snum) )
 				numpeaks += 1
-			fout.write( '\t'+str(maxes[0][1]) )
+                        fout.write( '\t'+str(maxes[0][1])+':'+str(maxes[0][0]) )
 			for (snum,i) in maxes[1:end]:
-				fout.write(','+str(i) )
+                            fout.write(','+str(i)+':'+str(snum) )
+                else:
+                    fout.write('\t')
 		fout.write('\n')	
 		p += 1
 	fin.close()

@@ -48,12 +48,12 @@ if True:
 	b = sp.csr_matrix(b)
 	anns = read_tab_delimited(afile)
 
-# ID | precursor number | monoiostopic m/z | charge | alpha | elution profile
+# ID | precursor number | monoiostopic m/z | charge | peak intensity | elution profile
 
 outfile = ms1file.replace('.ms1','_precursorprofiles.txt')
 
 fout = open(outfile,'w')
-fout.write('ID\tprecursor number\tmonoisotopic m/z\tcharge\talpha\telution profile\n')
+fout.write('ID\tprecursor number\tmonoisotopic m/z\tcharge\tpeak intensity\telution profile\n')
 i = 0
 P = len(anns['charge'])
 for p in xrange(P):
