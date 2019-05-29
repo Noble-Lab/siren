@@ -49,4 +49,18 @@ python siren.py FILENAME.ms1
 To get outputs 1, 2, 3, and 4, run the following command within the directory ./bin/python/:
 python siren.py MS1FILENAME.ms1 MZXMLFILENAME.mzXML
 
+## Detailed description of pipeline
+
+The script siren.py takes the input .ms1 file and runs a sequence of scripts that perform:
+
+1. Noise reduction and data-driven generation of hypothetical ion species per spectrum
+2. Generating decoy features for subsequent FDR estimation
+3. Linking hypothetical ion species and decoys across multiple scans
+4. Inference of abundances of hypothetical ion species via ordinary least squares regression
+5. Extraction of hypothetical elution profiles from inferred abundances
+6. Smoothing profiles and identifying elution peaks
+7. Computing regularization paths to subsequently score elution peaks
+8. Score elution peaks
+9. Format elution peaks into modified DIA-Umpire pipeline
+
 
