@@ -61,6 +61,6 @@ The script siren.py takes the input .ms1 file and runs a sequence of scripts tha
 6. Smoothing profiles and identifying elution peaks
 7. Computing regularization paths to subsequently score elution peaks
 8. Score elution peaks
-9. Format elution peaks into modified DIA-Umpire pipeline
+9. Format elution peaks into modified DIA-Umpire pipeline. This file should appear as a tab-delimited "_precursorprofiles.txt" in the same directory as the .ms1 file. Each row is an elution profile for a unique ion species. The elution profile is in the last column, with the format "scan_number:inferred_abundance,scanum_number:inferred_abundance,scanum_number:inferred_abundance" for a contiguous sequence of scans.
 
 
