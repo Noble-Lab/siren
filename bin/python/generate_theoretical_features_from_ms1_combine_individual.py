@@ -2,6 +2,10 @@ execfile('read_rowmajor_matrix.py')
 execfile('peakclusterforbinning.py')
 execfile('make_averagine_models.py')
 
+noisetol = 0.005 # remove peaks that do not persist within noisetol across at least two consecutive scans. Peaks that do not persist are considered noise.
+mergetol = 0.01 # merge together two peaks in the same scan if they are within mergetol m/z of each other. Peaks that are merged are considered to originate from the same ion species.
+isotopetol = 0.01 # a peak can be considered an isotopic variant of another peak if it is within isotopetol of 1.0/charge of that other peak 
+
 def get_ix(n):
 	return -1*n-1
 def get_n(ix):
@@ -142,10 +146,9 @@ if True:
 	print 'Numpeaks: ' + str(numpeaks)
 
 if True:
-	tol = 0.005
 	print 'Deleting unduplicated peaks'
 	justpeaks = [ peaklist[t][1] for t in range(len(peaklist)) ]	
-	justpeaks =  delete_unduplicated_peaklist( justpeaks, tol ) 
+	justpeaks =  delete_unduplicated_peaklist( justpeaks, noisetol ) 
 
 # Here, see how many clusters you get if you combine consecutive scans into blocks rather
 # and cluster the combined peaks rather than cluster the peaks scan by scan
@@ -184,8 +187,7 @@ while t < len(justpeaks):
 			t += 1
 			continue
 	
-		tol = 0.01
-		(clusts, cixes ) = peaklist_to_clusters( blockpeaks, tol ) 
+		(clusts, cixes ) = peaklist_to_clusters( blockpeaks, mergetol ) 
 
 		if toprint:
 			print 'num clusters: ' + str(len(clusts)) + ' ' + str( float(len(clusts))/len(blockpeaks) )
@@ -211,7 +213,7 @@ while t < len(justpeaks):
 				# where isop is the second isotopic peak
 				isop = peakcluster( p.minmz + 1.0/c, p.maxmz + 1.0/c, 0, 0 )
 				while n2 < N:
-					compare = compare_clusters( clusts[n2], isop, tol )
+					compare = compare_clusters( clusts[n2], isop, isotopetol )
 					#print '-n2: ' + str(n2) + ' comp: ' + str(compare)
 					if compare > 0:
 						n2 += 1
