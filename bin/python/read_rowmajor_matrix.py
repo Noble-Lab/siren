@@ -39,7 +39,15 @@ def read_tab_delimited( f, sep="\t", header=True ): # returns a dictionary
 	                tokens = line.split(sep)
 			if lh != len(tokens):
 				print 'Mismatch!', lh, len(tokens)
-				print line
+                                for i in range( max(lh,len(tokens))):
+                                        if i >= len(header):
+                                            print '-', tokens[i]
+                                        elif i >= len(tokens):
+                                            print header[i], '-'
+                                        else:
+                                            print header[i], tokens[i]
+                                print header
+                                print tokens
 	                for i in xrange(0,len(tokens)):
 				try: 
 					t = float(tokens[i])

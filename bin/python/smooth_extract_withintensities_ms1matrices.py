@@ -70,13 +70,19 @@ for p in xrange(P):
 	smoothedlen = smoothed.shape[0]
 	# Find Maxima
 	if newmint >= 0 and smoothed[0] >= smoothed[1] and smoothed[0] != 0:
-		maxima[p].append( (newmint,smoothed[0]) )
-
+		#maxima[p].append( (newmint,smoothed[0]) )
+                # If the maximum of the smoothed points is even before the original length, 
+                # just make it the beginning of the original length
+                maxima[p].append( (mint,sub[mint-newmint]) )
 	for t in xrange(1,smoothedlen-1):
                 if t + newmint < 0:
                     continue
 		if smoothed[t] > smoothed[t-1] and smoothed[t] > smoothed[t+1]:
-			maxima[p].append( (t+newmint,smoothed[t]) )
+                        if t+newmint < mint: # If the smoothed maximum scan precedes even the
+                            # original minimum scan, just give the original minimum scan
+			    maxima[p].append( (mint,smoothed[t]) )
+                        else:
+                            maxima[p].append( (t+newmint,smoothed[t]) )
 	if smoothed[-1] >= smoothed[-2] and smoothed[-1]>0:
 		maxima[p].append( (maxt-1,smoothed[-1]) )
 

@@ -29,7 +29,6 @@ def get_numds( targets, decoys ):
 # This assumes that the scan number is recorded with the binbounds 
 # And that the bins are presented in order
 def find_bin_blocks( binbounds ):
-
 	t = binbounds[0][2]
 	starts = { t:0 }
 	ends = {}
@@ -162,7 +161,6 @@ if True:
 	# Which is the elution time, the feature index within the scan number, and the index in the annfile
 	peaklist = [] # This should be a tuple of ( peak scan, index, annfile index )
 	for i in range(0,len(anns['charge'])):
-		print 'Annline', i
 		pts = anns['peak scans'][i]
 		ints = anns['peak intensities'][i]
 		if pts == '':
@@ -175,10 +173,10 @@ if True:
 
 		if ptslen == 1:
 			pts = [int(pts)]
-			ints = [float(ints)]
+                        ints = [float(ints.split(':')[0])]
 		else:
 			pts = [int(float(p)) for p in pts.split(',')] 	
-			ints = [float(p) for p in ints.split(',')] 	
+                        ints = [float(p.split(':')[0]) for p in ints.split(',')] 	
 		start_t = int(anns['start file'][i])
 		end_t = int(anns['end file'][i])
 		ixes = anns['indices'][i]
@@ -222,10 +220,10 @@ if True:
 
 		if ptslen == 1:
 			pts = [int(pts)]
-			ints = [float(ints)]
+                        ints = [float(ints.split(':')[0])]
 		else:
 			pts = [int(float(p)) for p in pts.split(',')] 	
-			ints = [float(p) for p in ints.split(',')] 	
+                        ints = [float(p.split(':')[0]) for p in ints.split(',')] 	
 		start_t = int(anns['start file'][i])
 		end_t = int(anns['end file'][i])
 		ixes = anns['indices'][i]
@@ -259,7 +257,7 @@ if True:
 	for p in peaklist:
 		if not p[0] in peakdict:
 			peakdict[p[0]] = []
-		peakdict[p[0]].append( (p[1],p[2]),p[3] ) # precursor ix, ann ix, intensity
+		peakdict[p[0]].append( (p[1],p[2],p[3]) ) # precursor ix, ann ix, intensity
 	
 	# separate peaks by peak time
 	dpeakdict = {}
@@ -302,7 +300,7 @@ if True:
 			lnz = len(nzalphas)
 			initial_n = int( pf.split('_')[2].split('t')[0] )
 		
-			# What are the LARS indices given the annotaFalseindices?
+			# What are the LARS indices given the annotation indices?
 			if t in peakdict:
 				peaks = peakdict[t] # Here are the annotated indices
 				# The tuple is alpha, index, and peak scan
@@ -339,9 +337,11 @@ def getintlist_commasep( s ):
 	else:
 		return [int(float(s))]
 
-def tuple_to_string( t ):
+def tuple_to_string( t, numvals=0 ):
 	s = str(t[0])
-	for v in t[1:]:
+        if numvals == 0:
+            numvals = len(s)
+	for v in t[1:numvals]:
 		s += ':' + str(v)
 	return s
 
@@ -356,7 +356,7 @@ if True:
 		talphalist[a[1]].append( (a[0],a[2],a[3]) ) # alpha, peak scan, intensity
 	dalphalist = [ [] for i in range(numfeatures) ]
 	for a in decoyalphas:
-		dalphalist[a[1]].append( (a[0],a[2]),a[3] ) # alpha, peak scan, intensity		 
+		dalphalist[a[1]].append( (a[0],a[2],a[3]) ) # alpha, peak scan, intensity		 
 		if pt > end_t or pt < start_t:
 			print 'Something is wrong'
 			print 'pt:', pt, (start_t,end_t)
@@ -369,7 +369,8 @@ if True:
 	htokens = header.split('\t')
 	tscanix = htokens.index('peak scans')
 	dscanix = htokens.index('decoy peak scans')
-	fout.write( header + '\ttarget alphas\ttarget intensities\tdecoy alphas\tdecoy intensities\n' )
+	fout.write( header + '\ttarget alphas\tdecoy alphas\n' )
+	#fout.write( header + '\ttarget alphas\ttarget intensities\tdecoy alphas\tdecoy intensities\n' )
 	i = 0
 	for line in fin:
 		tokens = line[:-1].split('\t')
@@ -385,24 +386,24 @@ if True:
 					continue
 				alphas.append( a )
 				times.add(a[1]) 
-			fout.write( tuple_to_string(alphas[0]) )
-			#fout.write( str(alphas[0][0])+':'+str(alphas[0][1]) )
+			fout.write( tuple_to_string(alphas[0],2) )
 			written += 1
 			for a in alphas[1:]:
-				#fout.write( ','+str(a[0])+':'+str(a[1]) )
-				fout.write( ','+tuple_to_string(a) )
+				fout.write( ','+tuple_to_string(a,2) )
 				written += 1	
-		# UGH when it doesn't work!
 
 		existing = 0
 		if tokens[tscanix] != '':
 			if ',' in tokens[tscanix]:
 				existing = len(tokens[tscanix].split(','))
+#                                print 'A'
 			else:
 				existing = 1
+ #                               print 'B', tokens[tscanix]
 		if not existing == written:
 			print 'Something is wrong'
 			print 'Line number:', i
+                        print 'existing:', existing, 'written:', written
 			print line	
 			break 
 
@@ -416,10 +417,10 @@ if True:
 				alphas.append( a )
 				times.add(a[1]) 
 			#fout.write( str(alphas[0][0])+':'+str(alphas[0][1]) )
-			fout.write( tuple_to_string(alphas[0]) )
+			fout.write( tuple_to_string(alphas[0],2) )
 			for a in alphas[1:]:
 				#fout.write( ','+str(a[0])+':'+str(a[1]) )
-				fout.write( ','+tuple_to_string(a) )
+				fout.write( ','+tuple_to_string(a,2) )
 		fout.write('\n')
 		i += 1			
 	fin.close()
